@@ -14,9 +14,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    // Declare a variable to hold current temperature
     @State private var currentTemp = 55.0
-    // Declare a variable to hold current starting unit of measurement
     @State private var unitOfMeasurement = "Fahrenheit"
     @State private var convertedMeasurement = "Celsius"
     
@@ -24,11 +22,33 @@ struct ContentView: View {
     
     func changeFromF() -> Double {
         let toC = (currentTemp - 32) * 5/9
-        let toF = (currentTemp - 32) * 5/9 + 273.15
+        let toK = (currentTemp - 32) * 5/9 + 273.15
         if convertedMeasurement == "Celsius" && unitOfMeasurement == "Fahrenheit" {
             return round(toC * 10) / 10
         } else if convertedMeasurement == "Kelvin" && unitOfMeasurement == "Fahrenheit" {
+            return round(toK * 10) / 10
+        }
+        return currentTemp
+    }
+    
+    func changeFromC() -> Double {
+        let toF = (currentTemp * 9/5) + 32
+        let toK = (currentTemp + 273.15)
+        if unitOfMeasurement == "Celsius" && convertedMeasurement == "Fahrenheit" {
             return round(toF * 10) / 10
+        } else if unitOfMeasurement == "Celsius" && convertedMeasurement == "Kelvin" {
+            return round(toK * 10) / 10
+        }
+        return currentTemp
+    }
+    
+    func changeFromK() -> Double {
+        let toF = (currentTemp - 273.15) * 9/5 + 32
+        let toC = (currentTemp - 273.15)
+        if unitOfMeasurement == "Kelvin" && convertedMeasurement == "Fahrenheit" {
+            return round(toF * 10) / 10
+        } else if unitOfMeasurement == "Kelvin" && convertedMeasurement == "Celsius" {
+            return round(toC * 10) / 10
         }
         return currentTemp
     }
@@ -38,12 +58,10 @@ struct ContentView: View {
         NavigationStack {
             Form {
                 Section("Current Temperature") {
-                    // create an input so users can put in their current temperature they want converted
                     TextField("Current Temperature", value: $currentTemp, format: .number)
                         .keyboardType(.decimalPad)
                         .focused($tempIsFocused)
                     
-                    // Let users select their current unit of measurement
                     Picker("Current Unit: ", selection: $unitOfMeasurement) {
                         ForEach(["Fahrenheit", "Celsius", "Kelvin"], id: \.self) {
                             Text($0)
@@ -60,7 +78,13 @@ struct ContentView: View {
                 }
                 
                 Section("Converted Temperature: ") {
-                    Text(changeFromF(), format: .number)
+                    if unitOfMeasurement == "Fahrenheit" {
+                        Text(changeFromF(), format: .number)
+                    } else if unitOfMeasurement == "Celsius" {
+                        Text(changeFromC(), format: .number)
+                    } else {
+                        Text(changeFromK(), format: .number)
+                    }
                 }
             }
             .navigationTitle("Temperature Converter")
